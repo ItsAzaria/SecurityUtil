@@ -20,6 +20,7 @@ class GistService() {
         GlobalScope.launch {
             delay(30000) // 30 seconds
 
+            println("Deleted gist with an ID of ${gist.gistId}")
             gist.delete()
         }
 
