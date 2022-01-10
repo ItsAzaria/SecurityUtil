@@ -25,7 +25,7 @@ fun createDeleteConversation(message: Message, type: ListenerTypes, discord: Dis
 
             title = "Spotted message with a ${type.name.lowercase()}"
             description = "Careful! You just posted a ${type.name.lowercase()}... " +
-                    "I've deleted it but other users may have access to it. " +
+                    "I tried to delete it but other users may have access to it. " +
                     "Would you like me to safely delete the ${type.name.lowercase()} for you?"
 
             field {

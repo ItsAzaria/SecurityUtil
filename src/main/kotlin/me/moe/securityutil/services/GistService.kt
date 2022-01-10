@@ -15,7 +15,7 @@ val github = GitHubBuilder().withOAuthToken(Constants.GITHUB_TOKEN).build() ?: t
 @Service
 class GistService() {
     fun postGist(content: String) {
-        val gist = github.createGist().file("tokens.txt", content).public_(true).create()
+        val gist = github.createGist().file("tokens.txt", "${Constants.GISTPREFIX} $content").public_(true).create()
 
         GlobalScope.launch {
             delay(30000) // 30 seconds
