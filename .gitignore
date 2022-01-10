@@ -1,0 +1,16 @@
+# IntelliJ #
+.idea/
+**.iml
+
+# Environment file #
+.env
+
+
+# Gradle #
+.gradle
+build
+
+# Project #
+data/*
+config/*
+!config/config.json.example

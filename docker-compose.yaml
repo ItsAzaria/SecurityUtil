@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  bot:
+    container_name: SecurityUtil
+    image: moeszyslak/securityutil:latest
+    volumes:
+      - type: bind
+        source: ./data
+        target: /home/app/data
+    restart: unless-stopped
+    env_file:
+      - .env
