@@ -7,13 +7,22 @@ import me.moe.securityutil.extensions.pfp
 import me.moe.securityutil.extensions.timeDescriptor
 import java.awt.Color
 
-fun EmbedBuilder.createUserInfoEmbed(user: User) {
+fun EmbedBuilder.createUserInfoEmbed(user: User, validToken: Boolean = false) {
     title = "User information"
     color = Color.cyan.kColor
 
     thumbnail {
         url = user.pfp()
     }
+
+    if (validToken) {
+        field {
+            name = "\uD83D\uDEA8 Valid Token \uD83D\uDEA8"
+            value = "This bot token is valid."
+            inline = false
+        }
+    }
+
 
     field {
         name = "**Username**"
