@@ -8,6 +8,7 @@ object Versions {
     const val DiscordKt = "0.23.0-SNAPSHOT"
     const val Fuel = "2.3.1"
     const val GithubAPI = "1.301"
+    const val ApacheCommonsNet = "3.8.0"
 }
 
 plugins {
@@ -26,6 +27,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-gson:${Versions.Fuel}")
     implementation("com.github.kittinunf.fuel:fuel:${Versions.Fuel}")
     implementation("org.kohsuke:github-api:${Versions.GithubAPI}")
+//    implementation("commons-net:commons-net:${Versions.ApacheCommonsNet}")
 }
 
 tasks {

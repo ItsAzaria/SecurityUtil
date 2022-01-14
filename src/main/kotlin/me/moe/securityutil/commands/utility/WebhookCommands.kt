@@ -1,8 +1,14 @@
 package me.moe.securityutil.commands.utility
 
+import com.github.kittinunf.fuel.httpGet
 import dev.kord.common.kColor
+import dev.kord.core.behavior.edit
+import dev.kord.core.behavior.interaction.InteractionResponseBehavior
+import dev.kord.core.behavior.interaction.edit
+import dev.kord.core.behavior.interaction.followUp
+import dev.kord.rest.builder.message.modify.embed
 import kotlinx.coroutines.DelicateCoroutinesApi
-import me.jakejmattson.discordkt.arguments.UrlArg
+import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.extensions.addField
 import me.jakejmattson.discordkt.extensions.addInlineField
@@ -12,6 +18,8 @@ import me.moe.securityutil.embeds.createWebhookInfoEmbed
 import me.moe.securityutil.services.GistService
 import me.moe.securityutil.services.WebhookService
 import me.moe.securityutil.utilities.Constants
+import com.github.kittinunf.result.Result
+import dev.kord.core.entity.Message
 import java.awt.Color
 import java.sql.Time
 import java.util.*
@@ -81,6 +89,57 @@ fun webhookCommands(webhookService: WebhookService, configuration: Configuration
         }
     }
 
+    command("BulkWebhookDelete") {
+        description = "Deletes lots of webhooks"
+        execute(EveryArg.optional("")) {
+            val msg = respond("Deleting webhooks...")
+
+            val webhooks: String
+
+            if (args.first.isNotEmpty()) {
+                webhooks = args.first
+            } else {
+                val attachment = message.attachments.firstOrNull()
+                if (attachment == null) {
+                    respond("No file or webhooks specified.")
+                    return@execute
+                }
+
+                if (!attachment.filename.contains(".txt")) {
+                    respond("Only text (`.txt`) files are accepted.")
+                    return@execute
+                }
+
+                webhooks = getFile(attachment.url) ?: return@execute
+            }
+
+            if (webhooks.isEmpty() || webhooks.isBlank()) {
+                respond("File or attachment cannot be blank.")
+                return@execute
+            }
+
+
+            val matches = Constants.WEBHOOK_REGEX.findAll(webhooks)
+
+            var alreadyGone = 0
+            var deleted = 0
+
+            matches.forEach {
+                try {
+                    val response = webhookService.deleteWebhook(it.value)
+                    if (response.success) deleted++ else alreadyGone++
+                } catch (exception: Exception) {
+                    alreadyGone++
+                }
+
+            }
+
+            updateEmbed(msg.first(), deleted, alreadyGone)
+        }
+    }
+
+
+
     slash("WebhookDeleteTimer") {
         description = "Deletes a webhook in the next few hours"
         execute(UrlArg) {
@@ -117,5 +176,39 @@ fun webhookCommands(webhookService: WebhookService, configuration: Configuration
             }
         }
     }
+}
 
+private suspend fun updateEmbed(msg: Message, deleted: Int, alreadyGone: Int) {
+    msg.edit {
+        content = null
+        embed {
+            title = "Bulk Webhook Nuker"
+            field {
+                name = "Deleted"
+                value = deleted.toString()
+                inline = true
+            }
+
+            field {
+                name = "Already Deleted"
+                value = alreadyGone.toString()
+                inline = true
+            }
+        }
+    }
+}
+
+private fun getFile(url: String): String? {
+    val (_, _, result) = url
+        .httpGet()
+        .responseString()
+
+    return when (result) {
+        is Result.Success -> {
+            return result.get()
+        }
+        is Result.Failure -> {
+            null
+        }
+    }
 }
